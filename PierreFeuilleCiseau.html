@@ -1,0 +1,76 @@
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<title> Exercice </title>
+</head>
+<body>
+  <p id="user">    </p>
+  <p id="computer">     </p>
+  <p id="par1">     </p>
+ <button type="button"  onclick="Pierre()"><img src="pierre.png" height=50 width=50 ></button>
+  <button type="button" onclick="Ciseau()"><img src="ciseau.png" height=50 width=50 ></button>
+   <button type="button" onclick="Feuille()"><img src="feuille.png" height=50 width=50 ></button>
+
+
+ <script>
+  var arrayPFC=['C','P','F'];
+  var result;
+  function getRandomIntInclusive(min, max) { // Fonction pour calculer un nombre aléatoire permettant de choisir dans le tableau, un objet aléatoirement
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min +1)) + min;
+  }
+
+
+   function Pierre(){
+     result=arrayPFC[getRandomIntInclusive(0,2)];
+     document.getElementById("user").innerHTML =" Le joueur a choisi : La Pierre";
+     if(result=='F'){
+       document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : La Feuille";
+       document.getElementById("par1").innerHTML = "l'ordinateur a gagné";
+
+     }else if(result=='P'){
+       document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : La Pierre";
+       document.getElementById("par1").innerHTML = "Egalité";
+     }
+   else {
+     document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : Les Ciseaux";
+     document.getElementById("par1").innerHTML = "Le joueur a gagné";
+   }
+ }
+
+   function Feuille(){
+     result=arrayPFC[getRandomIntInclusive(0,2)];
+      document.getElementById("user").innerHTML =" Le joueur a choisi : La Feuille";
+     if(result=='C'){
+       document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : Les Ciseaux";
+       document.getElementById("par1").innerHTML = "l'ordinateur a gagné";
+     }else if(result=='F'){
+       document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : La Feuille";
+       document.getElementById("par1").innerHTML = "Egalité";
+     }
+   else {
+     document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : La Pierre";
+     document.getElementById("par1").innerHTML = "Le joueur a gagné";
+    }
+   }
+
+ function Ciseau(){
+  document.getElementById("user").innerHTML =" Le joueur a choisi : Les Ciseaux";
+  result=arrayPFC[getRandomIntInclusive(0,2)];
+ if(result=='P'){
+   document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : La Pierre";
+   document.getElementById("par1").innerHTML = "l'ordinateur a gagné";
+ }else if(result=='C'){
+   document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : Les Ciseaux";
+   document.getElementById("par1").innerHTML = "Egalité";
+ }
+else {
+ document.getElementById("computer").innerHTML =" L'ordinateur  a choisi : La Feuille";
+ document.getElementById("par1").innerHTML = "Le joueur a gagné";
+  }
+
+}
+ </script>
+</body>
+</html>

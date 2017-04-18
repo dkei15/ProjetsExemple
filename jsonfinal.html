@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<!--Alex TAYLOR -->
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<title> Exercice </title>
+	<link rel="stylesheet" type="text/css" href="multiplication.css">
+</head>
+<body>
+<form NAME="form1">
+<input TYPE="text" NAME="input" VALUE=""><BR>
+<input TYPE="button" NAME="bouton" VALUE="Obtenir Statistique" onClick="prepare()">
+</form>
+
+<p id="q1"> </p>
+<p id="q2"> </p>
+<p id="q3"> </p>
+<p id="q32"> </p>
+<p id="q4"> </p>
+<p id="q5"> </p>
+<p id="q6"> </p>
+<p id="q62"> </p>
+<p id="q7"> </p>
+<p id="q72"> </p>
+<p id="q9"> </p>
+<p id="q10"> </p>
+<p id="q11"> </p>
+
+</body>
+<script>
+
+var tabAuthors = [];
+var tabMeilleursMess=["","",""];
+var premier =0;
+var compteur=0;
+var pro=-1;
+var request;
+
+function prepare(){
+  var url = "http://localhost:8080/reddit_comments.json";
+// on définit l'adresse des données qui nous intéressent
+url = document.form1.input.value+".json";
+// on crée un objet permettant de communiquer avec le monde extérieur
+ request = new XMLHttpRequest();
+// on initialise notre objet (rien n'est envoyé au serveur pour l'instant)
+request.open("GET", url);
+// on définit une fonction à exécuter à l'étape suivante
+send();
+}
+
+var actionChargement = function() {
+  obj = JSON.parse(request.responseText);
+	jsonCaracteristique(obj);
+}
+function send(){
+
+// on dit à notre objet 'request' ce qu'il devra faire lorsque la requête sera envoyée
+request.onload = actionChargement;
+// on envoie la requête, enfin !
+request.send();
+}
+function afficheTab(tabAuthors){
+  var liste="";
+	for(var i=0;i<tabAuthors.length;i++){
+    liste=liste+"</br>"+tabAuthors[i];
+	}
+  document.getElementById("q62").innerHTML=""+liste;
+}
+
+function nbReponses(obj){
+	return obj[1].data.children.length;
+}
+
+
+function auteurPrincipal(obj){
+	var objTemp=obj;
+	return objTemp[0].data.children[0].data.author;
+}
+
+
+function auteursReponses(obj){
+	var array=new Array();
+	for(var i=0;i<obj[1].data.children.length;i++){
+		array.push(obj[1].data.children[i].data.author);
+	}
+  var liste="";
+	for(var prop in array ){
+    liste=liste+"</br>"+array[prop];
+	}
+  document.getElementById("q32").innerHTML=""+liste;
+}
+function auteursTotal(obj){
+var objTemp;
+ 	if(premier==0){
+			premier=1;
+			objTemp=obj[1].data;
+			}else{objTemp=obj.data;}
+	if(objTemp != undefined){
+	for(var i=0;i<objTemp.children.length;i++){
+	 		var objReplies = objTemp.children[i].data;
+
+				if(!tabAuthors.includes(objReplies.author)){
+				tabAuthors.push(objReplies.author);
+				}
+				auteursTotal(objTemp.children[i].data.replies);
+			}
+	}
+	return 0;
+}
+
+function nbReponsesTotal(obj){
+	 var nombre=obj[0].data.children[0].data.num_comments;
+	 return nombre-1;
+}
+
+/*Initialise la variable premier servant aux fonctions récursives à savoir si on est dans obj[1] et le compteur*/
+function initialiseCP(){
+	compteur=0;
+	premier=0;
+}
+
+
+function auteursNombreReponsesTotal(obj){
+	var auteurNbrRep=[];
+	var listeMot="{";
+	remplir(obj,auteurNbrRep);
+
+	for(var i=0;i<auteurNbrRep.length;i++){
+		listeMot=listeMot+" \" "+auteurNbrRep[i].auteur+" \" " + " : "+auteurNbrRep[i].nbrMessage+', ';
+	}
+	listeMot=listeMot+"}";
+	document.getElementById("q72").innerHTML=listeMot;
+	return 0;
+}
+
+function remplir(objetJs,tab){
+
+	var objTemp;
+		if(premier==0){
+				premier=1;
+				objTemp=objetJs[1].data;
+				}else{objTemp=objetJs.data;}
+		if(objTemp != undefined){
+		for(var i=0;i<objTemp.children.length;i++){
+				var objReplies = objTemp.children[i].data;
+				if(appartient(tab,objReplies.author)){
+						for(var i=0;i<tab.length;i++){
+							if(tab[i].auteur == objReplies.author){
+								tab[i].nbrMessage++;
+								break;
+								}
+							}
+						}else{
+							var compte = new Object();
+							compte.auteur=objReplies.author;
+							compte.nbrMessage=1;
+							tab.push(compte);
+						}
+						remplir(objReplies.replies,tab);
+					}
+		return 0;
+	}
+}
+
+function appartient( tableau, nom){
+	for(var i=0;i<tableau.length;i++){
+		if(tableau[i].auteur==nom){
+			return 1;
+		}
+	}
+	return 0;
+
+}
+
+
+
+
+
+function meilleurMessage(obj){
+	var objTemp;
+	 	if(premier==0){
+				premier=1;
+				objTemp=obj[1].data;
+				}else{objTemp=obj.data;}
+		if(objTemp != undefined){
+		for(var i=0;i<objTemp.children.length;i++){
+		 		var objReplies = objTemp.children[i].data;
+					//console.log(objReplies.author);
+					if(objReplies.score>compteur){
+					tabMeilleursMess[0]=objReplies.author;
+					tabMeilleursMess[1]=objReplies.score;
+					tabMeilleursMess[2]=objReplies.body;
+					compteur=objReplies.score;
+					}
+					meilleurMessage(objTemp.children[i].data.replies);
+				}
+		}
+		return 0;
+
+
+}
+function moyenneTailleMessage(obj){
+	var objTemp;
+		if(premier==0){
+				premier=1;
+				objTemp=obj[1].data;
+				}else{objTemp=obj.data;}
+		if(objTemp != undefined){
+		for(var i=0;i<objTemp.children.length;i++){
+				var objReplies = objTemp.children[i].data;
+				var string =objReplies.body;
+				 compteur=compteur+string.length;
+				 moyenneTailleMessage(objTemp.children[i].data.replies);
+				}
+		}
+		return 0;
+}
+
+function liens(obj){ // Ne marche pas bien, les liens https ainsi que le les liens commençant pas www ne sont pas reconnus
+	var jsontext=JSON.stringify(obj);
+	var result=0;
+	var tabLink;
+	var i=0;
+
+	while(result>-1){
+		result=jsontext.indexOf("href=");
+		end=jsontext.indexOf("&gt");
+		console.log(result);
+		console.log(end);
+		begin=result+6;
+		var wordExtracted =jsontext.substring(result,end);
+		tabLink[i].push(wordExtracted);
+		i++;
+		console.log(wordExtracted);
+		jsontext=jsontext.substring(end);
+		end=0;
+	}
+ return tabLink;
+
+}
+
+
+function profondeur(obj){
+	var nombre=0;
+	compteur=0;
+	profondeurWorking(obj[1],nombre);
+	return compteur;
+}
+
+
+function profondeurWorking(obj,entier){
+	var objTemp=obj.data;
+
+	if(objTemp != undefined){
+		entier=entier+1;
+		for(var i=0;i<objTemp.children.length;i++){
+			 var objReplies = objTemp.children[i].data;
+
+			 profondeurWorking(objTemp.children[i].data.replies,entier);
+			 }
+		 }
+	 else if(compteur<entier){
+			 compteur=entier;
+		 }
+	 return ;
+}
+
+
+
+function statistiquesMot(mot){
+  var objTemp;
+	 	if(premier==0){
+				premier=1;
+				objTemp=obj[1].data;
+				}else{objTemp=obj.data;}
+		if(objTemp != undefined){
+		for(var i=0;i<objTemp.children.length;i++){
+		 		var objReplies = objTemp.children[i].data;
+          var stringSearched = objReplies.body;
+          if(stringSearched.includes(mot)){
+					compteur++;
+					}
+					statistiquesMot(objTemp.children[i].data.replies);
+				}
+		}
+		return 0;
+}
+
+
+function jsonCaracteristique(obj){
+/*auteurPrincipal*/
+document.getElementById("q1").innerHTML="L'auteur principal : "+auteurPrincipal(obj);
+
+
+
+/*nbReponses*/
+document.getElementById("q2").innerHTML="Nombre de réponse au message principal :"+" "+nbReponses(obj);
+
+
+/*auteursReponses*/
+document.getElementById("q3").innerHTML="Liste de tous les auteurs ayant répondu au message principal";
+auteursReponses(obj);
+
+
+
+/*nbReponsesTotal*/
+document.getElementById("q4").innerHTML="Nombre de réponse du fil de discussion :"+nbReponsesTotal(obj);
+
+
+
+
+/*profondeur*/
+document.getElementById("q5").innerHTML="La plus grande profondeur de la discussion :"+profondeur(obj);
+
+
+/*auteursTotal*/
+document.getElementById("q6").innerHTML="Liste exhaustive de tous les auteurs de la discussion";
+auteursTotal(obj);
+afficheTab(tabAuthors);
+
+
+
+/*auteursNombreReponsesTotal*/
+document.getElementById("q7").innerHTML="Nombre de mesage écrit par auteur : ";
+initialiseCP();
+auteursNombreReponsesTotal(obj);
+
+
+
+
+
+/*liens, la fonction ne reconnait pas assez bien les différents liens*/
+//initialiseCP();
+//liens(obj);
+
+
+/*meilleurMessage*/
+initialiseCP();
+meilleurMessage(obj);
+document.getElementById("q9").innerHTML="Meilleur message par "+tabMeilleursMess[0]+" avec un score de "+tabMeilleursMess[1]+" "+"  pour son message :\" "+tabMeilleursMess[2]+" \" ";
+
+/*moyenneTaillesMessages*/
+initialiseCP();
+moyenneTailleMessage(obj);
+document.getElementById("q10").innerHTML="La taille moyenne des messages est de :"+(compteur/(nbReponsesTotal(obj)+1))+" caractères précisement.";
+
+
+/*statistiquesMot*/
+initialiseCP();
+statistiquesMot("dataset");
+document.getElementById("q11").innerHTML="Le mot à chercher est utilisé "+compteur+" "+"fois dans la discussion";
+	}
+
+
+
+</script>
+</body>
+</html>
